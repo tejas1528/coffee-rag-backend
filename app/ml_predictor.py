@@ -36,12 +36,12 @@ class MLPredictor:
             with open(self.config.METADATA_PATH, 'r') as f:
                 self.metadata = json.load(f)
             
-            self.feature_names = self.metadata['feature_names']
+            self.feature_names = self.metadata['features']['names']
             logger.info(f"✓ Loaded metadata ({len(self.feature_names)} features)")
             
             # Verify model
-            logger.info(f"Model performance - R²: {self.metadata['performance']['r2_score']:.4f}, "
-                       f"RMSE: {self.metadata['performance']['rmse']:.4f}")
+            logger.info(f"Model performance - R²: {self.metadata['performance']['XGBoost']['test_r2']:.4f}, "
+                       f"RMSE: {self.metadata['performance']['XGBoost']['test_rmse']:.4f}")
             
             return True
             

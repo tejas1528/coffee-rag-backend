@@ -48,7 +48,7 @@ print("="*80)
 # ==================== CONFIGURATION ====================
 
 # Paths (update these to match your setup)
-DATA_PATH = 'cotter_dataset.csv'  # Your dataset
+DATA_PATH = '../data/cotter_dataset.csv'  # Your dataset
 OUTPUT_DIR = Path('../data/models')  # Where to save models
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -318,12 +318,14 @@ print("="*80)
 # Get feature importance (different for ensemble)
 if best_model_name == 'Ensemble':
     # Average importance from all estimators
-    if hasattr(best_model.estimators_[0][1], 'feature_importances_'):
-        importances = np.mean([
-            est.feature_importances_ 
-            for name, est in best_model.estimators_ 
-            if hasattr(est, 'feature_importances_')
-        ], axis=0)
+    # VotingRegressor.estimators_ is a list of fitted estimators (without names)
+    estimator_importances = []
+    for est in best_model.estimators_:
+        if hasattr(est, 'feature_importances_'):
+            estimator_importances.append(est.feature_importances_)
+    
+    if estimator_importances:
+        importances = np.mean(estimator_importances, axis=0)
     else:
         importances = best_rf.feature_importances_  # Fallback to RF
 else:

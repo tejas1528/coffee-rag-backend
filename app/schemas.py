@@ -3,13 +3,32 @@ Pydantic schemas for request/response validation
 """
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
+from typing import Optional, Literal, Union
 
 # Request schemas
 class RecipeRequest(BaseModel):
-    preference: str = Field(..., description="User's coffee preference", example="I want sweet coffee")
-    min_rating: Optional[float] = Field(7.0, ge=1.0, le=9.0, description="Minimum rating threshold")
-    cluster: Optional[int] = Field(None, ge=1, le=2, description="Cluster filter (1 or 2)")
-    n_results: Optional[int] = Field(50, ge=10, le=200, description="Number of results to retrieve")
+    preference: str = Field(
+        ..., 
+        description="User's coffee preference",
+        example="I want bitter coffee with sweetness"
+    )
+
+    filter_type: Optional[Literal["min_rating", "cluster"]] = Field(
+        None,
+        description="Type of filter to apply (only one allowed)"
+    )
+
+    filter_value: Optional[Union[int, float]] = Field(
+        None,
+        description="Value for the selected filter"
+    )
+
+    n_results: int = Field(
+        50, 
+        ge=10, 
+        le=200, 
+        description="Number of results to retrieve"
+    )
 
 class SimilarCoffeesRequest(BaseModel):
     query: str = Field(..., description="Search query", example="sweet coffee with chocolate")
@@ -23,12 +42,20 @@ class PredictionRequest(BaseModel):
     sensory_features: List[float] = Field(..., description="20 sensory features in order")
     user_preference: Optional[str] = Field(None, description="Optional preference for context")
 
-# Response schemas
+class ParameterDetails(BaseModel):
+    optimal: Optional[float] = None
+    range: Optional[List[float]] = None
+    sweet_spot: Optional[List[float]] = None
+
+class TDSDetails(BaseModel):
+    optimal: Optional[float] = None
+    range: Optional[List[float]] = None
+
 class BrewingParameters(BaseModel):
-    temperature: Dict[str, Optional[float]]
-    tds: Dict[str, Optional[float]]
-    extraction: Dict[str, Optional[float]]
-    dose: Dict[str, Optional[float]]
+    temperature: ParameterDetails
+    tds: TDSDetails
+    extraction: TDSDetails
+    dose: TDSDetails
 
 class ExpectedResults(BaseModel):
     average_rating: float

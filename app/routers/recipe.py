@@ -16,9 +16,10 @@ async def get_brewing_recipe(request: RecipeRequest, rag_engine = Depends(get_ra
     result = rag_engine.get_brewing_recipe(
         user_preference=request.preference,
         n_results=request.n_results,
-        min_rating=request.min_rating,
-        cluster=request.cluster
+        filter_type=request.filter_type,
+        filter_value=request.filter_value
     )
+
     
     if 'error' in result:
         raise HTTPException(status_code=404, detail=result['error'])
